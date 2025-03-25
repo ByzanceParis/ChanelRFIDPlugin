@@ -32,7 +32,7 @@ let rfidManager = ChanelRFIDPlugin()
 ## Methods
 
 ### `listDevices()`
-Discovers and lists all BLE devices with "byzance" in their name.
+Discovers and lists all BLE devices with "chanel" in their name.
 
 ```swift
 rfidManager.listDevices { devices, error in
