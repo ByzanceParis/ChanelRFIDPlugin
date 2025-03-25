@@ -1,32 +1,32 @@
-# ByzanceRFIDPlugin Documentation
+# ChanelRFIDPlugin Documentation
 
 ## Overview
 
-The ByzanceRFIDPlugin is an iOS plugin designed to interact with Byzance RFID readers via Bluetooth Low Energy (BLE). This plugin provides a simple interface for discovering, connecting, and communicating with RFID devices.
+The ChanelRFIDPlugin is an iOS plugin designed to interact with Channel RFID readers via Bluetooth Low Energy (BLE). This plugin provides a simple interface for discovering, connecting, and communicating with RFID devices.
 
 ## Installation
 
 ### CocoaPods
 Add the following to your Podfile:
 ```ruby
-pod 'ByzanceRFIDPlugin'
+pod 'ChanelRFIDPlugin'
 ```
 
 ### Swift Package Manager
 Add the package in Xcode:
 1. Go to File > Swift Packages > Add Package Dependency
-2. Enter the repository URL for the ByzanceRFIDPlugin
+2. Enter the repository URL for the ChanelRFIDPlugin
 
 ## Usage
 
 ### Import the Plugin
 ```swift
-import ByzanceRFIDPlugin
+import ChanelRFIDPlugin
 ```
 
 ### Initialization
 ```swift
-let rfidManager = ByzanceRFIDPlugin()
+let rfidManager = ChanelRFIDPlugin()
 ```
 
 ## Methods
@@ -48,7 +48,7 @@ rfidManager.listDevices { devices, error in
 ```
 
 ### `connect(to device: BLEDevice)`
-Connects to a specific Byzance RFID device.
+Connects to a specific Channel RFID device.
 
 ```swift
 rfidManager.connect(to: selectedDevice) { success, error in
@@ -140,7 +140,7 @@ Ensure you have the following permissions in your `Info.plist`:
 ## Example Complete Workflow
 
 ```swift
-let rfidManager = ByzanceRFIDPlugin()
+let rfidManager = ChanelRFIDPlugin()
 
 // List devices
 rfidManager.listDevices { devices, error in
@@ -174,4 +174,4 @@ rfidManager.listDevices { devices, error in
 
 - Ensure Bluetooth is enabled on the device
 - Some methods may require user permissions
-- Performance and reliability depend on the specific Byzance RFID reader model
+- Performance and reliability depend on the specific Channel RFID reader model
