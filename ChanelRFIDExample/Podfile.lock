@@ -1,0 +1,16 @@
+PODS:
+  - ChanelRFIDPlugin (1.0.0)
+
+DEPENDENCIES:
+  - ChanelRFIDPlugin (from `../ChanelRFIDPlugin`)
+
+EXTERNAL SOURCES:
+  ChanelRFIDPlugin:
+    :path: "../ChanelRFIDPlugin"
+
+SPEC CHECKSUMS:
+  ChanelRFIDPlugin: 489dc4cc80bee7448f30d2e186afb2977f8d6bf3
+
+PODFILE CHECKSUM: 97abdb1cd32f007aa9c8d3d018edaab8106ea382
+
+COCOAPODS: 1.16.2

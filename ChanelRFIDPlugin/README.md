@@ -1,38 +1,61 @@
-# ChanelRFIDPlugin Documentation
+# ChanelRFIDPlugin
 
-## Overview
+An iOS plugin designed to interact with Chanel RFID readers via Bluetooth Low Energy (BLE).
 
-The ChanelRFIDPlugin is an iOS plugin designed to interact with Channel RFID readers via Bluetooth Low Energy (BLE). This plugin provides a simple interface for discovering, connecting, and communicating with RFID devices.
+## Features
+
+- Discover and list Chanel RFID readers
+- Connect to specific RFID devices
+- Start and stop RFID scanning
+- Receive RFID tag data
+- Reset connected devices
+- Comprehensive error handling
+
+## Requirements
+
+- iOS 14.0+
+- Swift 5.9+
+- Xcode 13.0+
 
 ## Installation
 
 ### CocoaPods
+
 Add the following to your Podfile:
+
 ```ruby
 pod 'ChanelRFIDPlugin'
 ```
 
+Then run:
+
+```bash
+pod install
+```
+
 ### Swift Package Manager
+
 Add the package in Xcode:
+
 1. Go to File > Swift Packages > Add Package Dependency
 2. Enter the repository URL for the ChanelRFIDPlugin
+3. Select the version you want to use
 
 ## Usage
 
 ### Import the Plugin
+
 ```swift
 import ChanelRFIDPlugin
 ```
 
 ### Initialization
+
 ```swift
 let rfidManager = ChanelRFIDPlugin()
 ```
 
-## Methods
-
-### `listDevices()`
-Discovers and lists all BLE devices with "BZNC RFID READER" in their name.
+### Discover Devices
 
 ```swift
 rfidManager.listDevices { devices, error in
@@ -47,8 +70,7 @@ rfidManager.listDevices { devices, error in
 }
 ```
 
-### `connect(to device: BLEDevice)`
-Connects to a specific Channel RFID device.
+### Connect to a Device
 
 ```swift
 rfidManager.connect(to: selectedDevice) { success, error in
@@ -63,14 +85,7 @@ rfidManager.connect(to: selectedDevice) { success, error in
 }
 ```
 
-### `startScan()`
-Begins listening for RFID scans on the connected device.
-
-This function need to send 
-    set|SCAN|1
-to the device to start scanning
-
-
+### Start Scanning for RFID Tags
 
 ```swift
 rfidManager.startScan { rfidTag, error in
@@ -85,11 +100,7 @@ rfidManager.startScan { rfidTag, error in
 }
 ```
 
-### `stopScan()`
-Stops listening for RFID scans.
-This function need to send 
-    set|SCAN|0
-to the device to stop scanning
+### Stop Scanning
 
 ```swift
 rfidManager.stopScan { success, error in
@@ -104,8 +115,7 @@ rfidManager.stopScan { success, error in
 }
 ```
 
-### `disconnect()`
-Disconnects from the current RFID reader.
+### Disconnect from Device
 
 ```swift
 rfidManager.disconnect { success, error in
@@ -120,13 +130,7 @@ rfidManager.disconnect { success, error in
 }
 ```
 
-### `reset()`
-Resets the connected RFID reader.
-This function need to send 
-    reboot
-to the device to reboot
-
-
+### Reset Device
 
 ```swift
 rfidManager.reset { success, error in
@@ -140,16 +144,6 @@ rfidManager.reset { success, error in
     }
 }
 ```
-
-## Error Handling
-
-The plugin uses Swift's error handling mechanism. Each method provides an optional `error` parameter to help diagnose issues.
-
-## Permissions
-
-Ensure you have the following permissions in your `Info.plist`:
-- Privacy - Bluetooth Always Usage Description
-- Privacy - Bluetooth Peripheral Usage Description
 
 ## Example Complete Workflow
 
@@ -178,14 +172,17 @@ rfidManager.listDevices { devices, error in
 }
 ```
 
-## Compatibility
+## Permissions
 
-- Minimum iOS Version: 14.0
-- Swift Version: 5.9
-- Supports Bluetooth Low Energy (BLE)
+Ensure you have the following permissions in your `Info.plist`:
 
-## Notes
+```xml
+<key>NSBluetoothAlwaysUsageDescription</key>
+<string>This app uses Bluetooth to connect to RFID readers</string>
+<key>NSBluetoothPeripheralUsageDescription</key>
+<string>This app uses Bluetooth to connect to RFID readers</string>
+```
 
-- Ensure Bluetooth is enabled on the device
-- Some methods may require user permissions
-- Performance and reliability depend on the specific Channel RFID reader model
+## License
+
+ChanelRFIDPlugin is available under the MIT license. See the LICENSE file for more info.

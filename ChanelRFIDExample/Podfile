@@ -1,0 +1,14 @@
+# Uncomment the next line to define a global platform for your project
+platform :ios, '14.0'
+
+target 'ChanelRFIDExample' do
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+
+  # Pods for ChanelRFIDExample
+  # For local development, use the path to the local plugin
+  pod 'ChanelRFIDPlugin', :path => '../ChanelRFIDPlugin'
+  
+  # For production, you would use:
+  # pod 'ChanelRFIDPlugin'
+end
