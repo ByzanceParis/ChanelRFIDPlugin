@@ -38,6 +38,12 @@ public class ChanelRFIDPlugin: NSObject {
     /// Callback for reset status
     private var resetCallback: ((Bool, Error?) -> Void)?
     
+    /// Callback for parameter set operations
+    private var setParameterCallback: ((Bool, Error?) -> Void)?
+    
+    /// Callback for parameter get operations
+    private var getParameterCallback: ((String?, Error?) -> Void)?
+    
     /// List of discovered devices
     private var discoveredDevices: [BLEDevice] = []
     
@@ -181,6 +187,105 @@ public class ChanelRFIDPlugin: NSObject {
         
         peripheral.writeValue(data, for: characteristic, type: .withResponse)
     }
+    
+    /// Sets a parameter on the connected RFID reader
+    /// - Parameters:
+    ///   - parameter: The parameter name ("power", "region", or "interval")
+    ///   - value: The parameter value
+    ///   - completion: Callback with success status or error
+    public func setParameter(_ parameter: String, value: String, completion: @escaping (Bool, Error?) -> Void) {
+        guard let peripheral = connectedPeripheral, let characteristic = writeCharacteristic else {
+            completion(false, RFIDError.notConnected)
+            return
+        }
+        
+        // Validate parameter and value
+        guard isValidParameter(parameter) else {
+            completion(false, RFIDError.invalidParameter)
+            return
+        }
+        
+        guard isValidParameterValue(parameter: parameter, value: value) else {
+            completion(false, RFIDError.invalidParameterValue)
+            return
+        }
+        
+        setParameterCallback = completion
+        
+        // Send command to set parameter
+        let command = "set|\(parameter)|\(value)"
+        guard let data = command.data(using: .utf8) else {
+            completion(false, RFIDError.invalidCommand)
+            return
+        }
+        
+        peripheral.writeValue(data, for: characteristic, type: .withResponse)
+    }
+    
+    /// Gets a parameter value from the connected RFID reader
+    /// - Parameters:
+    ///   - parameter: The parameter name ("power", "region", or "interval")
+    ///   - completion: Callback with parameter value or error
+    public func getParameter(_ parameter: String, completion: @escaping (String?, Error?) -> Void) {
+        guard let peripheral = connectedPeripheral, let characteristic = writeCharacteristic else {
+            completion(nil, RFIDError.notConnected)
+            return
+        }
+        
+        // Validate parameter
+        guard isValidParameter(parameter) else {
+            completion(nil, RFIDError.invalidParameter)
+            return
+        }
+        
+        getParameterCallback = completion
+        
+        // Send command to get parameter
+        let command = "get|\(parameter)"
+        guard let data = command.data(using: .utf8) else {
+            completion(nil, RFIDError.invalidCommand)
+            return
+        }
+        
+        peripheral.writeValue(data, for: characteristic, type: .withResponse)
+    }
+    
+    // MARK: - Private Parameter Validation Methods
+    
+    /// Validates if the parameter name is supported
+    /// - Parameter parameter: The parameter name to validate
+    /// - Returns: True if the parameter is valid, false otherwise
+    private func isValidParameter(_ parameter: String) -> Bool {
+        let validParameters = ["power", "region", "interval"]
+        return validParameters.contains(parameter)
+    }
+    
+    /// Validates if the parameter value is valid for the given parameter
+    /// - Parameters:
+    ///   - parameter: The parameter name
+    ///   - value: The parameter value to validate
+    /// - Returns: True if the value is valid for the parameter, false otherwise
+    private func isValidParameterValue(parameter: String, value: String) -> Bool {
+        switch parameter {
+        case "power":
+            // Power values: 1500 to 2600 by increments of 100
+            guard let powerValue = Int(value) else { return false }
+            return powerValue >= 1500 && powerValue <= 2600 && powerValue % 100 == 0
+            
+        case "region":
+            // Region values: "CN1", "CN2", "US", "EU", "KO"
+            let validRegions = ["CN1", "CN2", "US", "EU", "KO"]
+            return validRegions.contains(value)
+            
+        case "interval":
+            // Interval: any positive integer (duration in ms)
+            guard let intervalValue = Int(value) else { return false }
+            return intervalValue > 0
+            
+        default:
+            return false
+        }
+    }
 }
 
 // MARK: - CBCentralManagerDelegate
@@ -201,6 +306,8 @@ extension ChanelRFIDPlugin: CBCentralManagerDelegate {
             stopScanCallback?(false, RFIDError.notConnected)
             disconnectionCallback?(false, RFIDError.notConnected)
             resetCallback?(false, RFIDError.notConnected)
+            setParameterCallback?(false, RFIDError.notConnected)
+            getParameterCallback?(nil, RFIDError.notConnected)
             
             // Also notify any pending list devices completion
             pendingListDevicesCompletion?([], RFIDError.notConnected)
@@ -334,6 +441,25 @@ extension ChanelRFIDPlugin: CBPeripheralDelegate {
         } else if response.contains("REBOOT:OK") {
             resetCallback?(true, nil)
             resetCallback = nil
+        } else if response.hasPrefix("SET:OK") {
+            // Parameter set operation successful
+            setParameterCallback?(true, nil)
+            setParameterCallback = nil
+        } else if response.hasPrefix("SET:ERROR") {
+            // Parameter set operation failed
+            setParameterCallback?(false, RFIDError.parameterOperationFailed)
+            setParameterCallback = nil
+        } else if response.contains("|") && getParameterCallback != nil {
+            // Parameter get response format: "parameter|value"
+            let components = response.components(separatedBy: "|")
+            if components.count >= 2 {
+                let value = components[1]
+                getParameterCallback?(value, nil)
+                getParameterCallback = nil
+            } else {
+                getParameterCallback?(nil, RFIDError.parameterOperationFailed)
+                getParameterCallback = nil
+            }
         }
     }
     
@@ -348,6 +474,12 @@ extension ChanelRFIDPlugin: CBPeripheralDelegate {
                 } else if resetCallback != nil {
                     resetCallback?(false, error)
                     resetCallback = nil
+                } else if setParameterCallback != nil {
+                    setParameterCallback?(false, error)
+                    setParameterCallback = nil
+                } else if getParameterCallback != nil {
+                    getParameterCallback?(nil, error)
+                    getParameterCallback = nil
                 }
             }
         }

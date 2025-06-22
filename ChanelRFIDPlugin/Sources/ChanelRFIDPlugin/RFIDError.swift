@@ -26,6 +26,15 @@ public enum RFIDError: Error {
     /// A scan operation failed
     case scanFailed
     
+    /// Invalid parameter name
+    case invalidParameter
+    
+    /// Invalid parameter value
+    case invalidParameterValue
+    
+    /// Parameter operation failed
+    case parameterOperationFailed
+    
     /// A general error occurred
     case generalError(String)
 }
@@ -51,6 +60,12 @@ extension RFIDError: LocalizedError {
             return "The command is invalid or could not be sent"
         case .scanFailed:
             return "A scan operation failed"
+        case .invalidParameter:
+            return "Invalid parameter name"
+        case .invalidParameterValue:
+            return "Invalid parameter value"
+        case .parameterOperationFailed:
+            return "Parameter operation failed"
         case .generalError(let message):
             return message
         }
